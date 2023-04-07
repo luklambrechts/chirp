@@ -5,13 +5,30 @@ import Link from "next/link";
 
 import { api } from "~/utils/api";
 
+const CreatePostWizard = () => {
+  const { user } = useUser();
+  console.log('-----')
+  console.log(user);
+  console.log('-----')
+  if (!user) return null;
+  return (
+    <div className="flex w-full gap-3">
+      <img
+        src={user.profileImageUrl}
+        alt="profile image"
+        className="h -16 w-16 rounded-full"
+      />
+      <input placeholder="Type some emojis!" className="bg-transparent grow outline-none"></input>
+    </div>
+  );
+};
+
 const Home: NextPage = () => {
   const user = useUser();
 
   const { data, isLoading } = api.posts.getAll.useQuery();
-  if (isLoading) return <div>Loading...</div>
-  if (!data) return <div>Something went wrong</div>
-
+  if (isLoading) return <div>Loading...</div>;
+  if (!data) return <div>Something went wrong</div>;
 
   return (
     <>
@@ -22,13 +39,19 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex h-screen justify-center">
         <div className="h-full w-full border-x md:max-w-2xl">
-          <div className="border-b border-slate-400 p-4 flex">
-            {!user.isSignedIn && <div className="flex justify"><SignInButton></SignInButton></div>}
-            {!!user.isSignedIn && <SignOutButton></SignOutButton>}
+          <div className="flex border-b border-slate-400 p-4">
+            {!user.isSignedIn && (
+              <div className="justify flex">
+                <SignInButton></SignInButton>
+              </div>
+            )}
+            {user.isSignedIn && <CreatePostWizard />}
           </div>
           <div className="flex flex-col">
             {[...data, ...data]?.map((post) => (
-              <div key={post.id} className="p-8 border-b border-slate-4">{post.content}</div>
+              <div key={post.id} className="border-slate-4 border-b p-8">
+                {post.content}
+              </div>
             ))}
           </div>
         </div>
