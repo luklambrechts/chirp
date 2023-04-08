@@ -3,7 +3,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
-import { api } from "~/utils/api";
+import { RouterOutputs, api } from "~/utils/api";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -22,6 +22,11 @@ const CreatePostWizard = () => {
     </div>
   );
 };
+
+type PostWithUser = RouterOutputs["posts"]["getAll"][number]
+const PostView = () => {
+
+}
 
 const Home: NextPage = () => {
   const user = useUser();
