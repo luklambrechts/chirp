@@ -7,9 +7,9 @@ import { RouterOutputs, api } from "~/utils/api";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
-  console.log('-----')
+  console.log("-----");
   console.log(user);
-  console.log('-----')
+  console.log("-----");
   if (!user) return null;
   return (
     <div className="flex w-full gap-3">
@@ -18,15 +18,23 @@ const CreatePostWizard = () => {
         alt="profile image"
         className="h -16 w-16 rounded-full"
       />
-      <input placeholder="Type some emojis!" className="bg-transparent grow outline-none"></input>
+      <input
+        placeholder="Type some emojis!"
+        className="grow bg-transparent outline-none"
+      ></input>
     </div>
   );
 };
 
-type PostWithUser = RouterOutputs["posts"]["getAll"][number]
-const PostView = () => {
-
-}
+type PostWithUser = RouterOutputs["posts"]["getAll"][number];
+const PostView = (props: PostWithUser) => {
+  const { post, author } = props;
+  return (
+    <div key={post.id} className="border-b border-slate-400 p-8">
+      {post.content}
+    </div>
+  );
+};
 
 const Home: NextPage = () => {
   const user = useUser();
