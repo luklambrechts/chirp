@@ -39,7 +39,7 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex">
-          <span>{author.username}</span>
+          <span>{`@${author.username}`}</span>
         </div>
         <span>{post.content}</span>
       </div>
