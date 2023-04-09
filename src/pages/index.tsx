@@ -9,6 +9,7 @@ import type { RouterOutputs } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 
 dayjs.extend(relativeTime);
 
@@ -63,7 +64,7 @@ const Home: NextPage = () => {
   const user = useUser();
 
   const { data, isLoading } = api.posts.getAll.useQuery();
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || true ) return <LoadingPage />
   if (!data) return <div>Something went wrong</div>;
 
   return (
