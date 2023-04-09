@@ -8,6 +8,8 @@ import { RouterOutputs, api } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
+dayjs.extend(relativeTime);
+
 const CreatePostWizard = () => {
   const { user } = useUser();
   console.log("-----");
@@ -42,7 +44,8 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex text-slate-300 gap-1">
-          <span>{`@${author.username}`}</span><span>{` · 1 hour ago`}</span>
+          <span>{`@${author.username}`}</span>
+          <span>{` · ${dayjs(post.createdAt).fromNow()}`}</span>
         </div>
         <span>{post.content}</span>
       </div>
