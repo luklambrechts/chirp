@@ -61,11 +61,10 @@ const PostView = (props: PostWithUser) => {
 };
 
 const Home: NextPage = () => {
-  const user = useUser();
+  const { user, isLoaded: userLoaded } = useUser();
 
-  const { data, isLoading } = api.posts.getAll.useQuery();
-  if (isLoading || true ) return <LoadingPage />
-  if (!data) return <div>Something went wrong</div>;
+  const { data, isLoading: postsLoaded  } = api.posts.getAll.useQuery();
+  if (!userLoaded && !postsLoaded) return <div />
 
   return (
     <>
