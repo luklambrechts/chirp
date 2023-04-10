@@ -9,7 +9,7 @@ import type { RouterOutputs } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import { LoadingPage, LoadingSpinner } from "~/components/loading";
+import { LoadingPage  } from "~/components/loading";
 
 dayjs.extend(relativeTime);
 
@@ -54,7 +54,7 @@ const PostView = (props: PostWithUser) => {
           <span>{`@${author.username}`}</span>
           <span>{` · ${dayjs(post.createdAt).fromNow()}`}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-2xl">{post.content}</span>
       </div>
     </div>
   );
