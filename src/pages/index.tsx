@@ -8,7 +8,7 @@ import type { RouterOutputs } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
-import { LoadingPage } from "~/components/loading";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -26,13 +26,13 @@ const CreatePostWizard = () => {
       void ctx.posts.getAll.invalidate(); // returns a promise and we dont care about it
     },
     onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
       if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0])
+        toast.error(errorMessage[0]);
       } else {
-        toast.error("Failed to post ! Please try again later.")
+        toast.error("Failed to post ! Please try again later.");
       }
-    }
+    },
   });
   console.log("-----");
   console.log(user);
@@ -47,6 +47,7 @@ const CreatePostWizard = () => {
         width={56}
         height={56}
       />
+
       <input
         placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
@@ -55,7 +56,14 @@ const CreatePostWizard = () => {
         onChange={(e) => setInput(e.target.value)}
         disabled={isPosting}
       ></input>
-      <button onClick={() => mutate({ content: input })}>Post</button>
+      {input !== "" && !isPosting &&  (
+        <button onClick={() => mutate({ content: input })}>Post</button>
+      )}
+      {isPosting && (
+        <div className="flex justify-center items-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </div>
   );
 };
