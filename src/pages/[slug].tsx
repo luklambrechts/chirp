@@ -1,8 +1,9 @@
-import type {  NextPage, GetStaticProps } from "next";
+import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
+import Image from "next/image";
 
-const ProfilePage: NextPage<{ username: string}>  = ( { username }) => {
+const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data } = api.profile.getUserByUsername.useQuery({
     username,
   });
@@ -17,10 +18,19 @@ const ProfilePage: NextPage<{ username: string}>  = ( { username }) => {
         <title>{username}</title>
       </Head>
       <PageLayout>
-        <div>{data.username}</div>
+        <div className="relative h-36 bg-slate-600">
+          <Image
+            src={data.profileImageUrl}
+            alt={`${data.username}'s profile pic`}
+            width={128}
+            height={128}
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-2 border-black bg-black"
+          />
+        </div>
+        <div className="h-[64px]"></div>
+        <div className="p-4 text-2xl">{`@${data.username ?? ""}`}</div>
+        <div className="border-b border-slate-400 w-full"></div>
       </PageLayout>
-
-    
     </>
   );
 };
@@ -40,7 +50,7 @@ export const getStaticProps = async (context: { params: { slug: any } }) => {
 
   const slug = context.params?.slug;
 
-  const username= slug.replace("@,","");
+  const username = slug.replace("@,", "");
 
   if (typeof slug !== "string") throw new Error("no slug");
   await ssg.profile.getUserByUsername.prefetch({ username });
