@@ -1,3 +1,4 @@
+import { PageLayout } from "~/components/layout";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
@@ -127,21 +128,18 @@ const Home: NextPage = () => {
   if (!userLoaded) return <div />;
 
   return (
-    <>
-      <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x md:max-w-2xl">
-          <div className="flex border-b border-slate-400 p-4">
-            {!isSignedIn && (
-              <div className="justify flex">
-                <SignInButton></SignInButton>
-              </div>
-            )}
-            {isSignedIn && <CreatePostWizard />}
+    <PageLayout>
+      <div className="flex border-b border-slate-400 p-4">
+        {!isSignedIn && (
+          <div className="justify flex">
+            <SignInButton></SignInButton>
           </div>
-          <Feed />
-        </div>
-      </main>
-    </>
+        )}
+        {isSignedIn && <CreatePostWizard />}
+      </div>
+
+      <Feed />
+    </PageLayout>
   );
 };
 

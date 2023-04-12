@@ -1,28 +1,26 @@
-import { type NextPage } from "next";
+import type {  NextPage, GetStaticProps } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
 
-const ProfilePage: NextPage = () => {
-  const { data, isLoading } = api.profile.getUserByUsername.useQuery({
-    username: "luklambrechts",
+const ProfilePage: NextPage<{ username: string}>  = ( { username }) => {
+  const { data } = api.profile.getUserByUsername.useQuery({
+    username,
   });
 
-  if (isLoading) return <div>Loading...</div>;
   if (!data) return <div>404</div>;
 
-  console.log(data);
+  console.log(username);
 
   return (
     <>
       <Head>
-        <title>Profile View</title>
+        <title>{username}</title>
       </Head>
+      <PageLayout>
+        <div>{data.username}</div>
+      </PageLayout>
 
-      <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x md:max-w-2xl">
-          {data.username}
-        </div>
-      </main>
+    
     </>
   );
 };
@@ -31,8 +29,9 @@ import { createServerSideHelpers } from "@trpc/react-query/server";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import superjson from "superjson";
+import { PageLayout } from "~/components/layout";
 
-export const getStaticProps = async (context: { params: { slug: any; }; }) => {
+export const getStaticProps = async (context: { params: { slug: any } }) => {
   const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: { prisma, userId: null },
@@ -41,13 +40,20 @@ export const getStaticProps = async (context: { params: { slug: any; }; }) => {
 
   const slug = context.params?.slug;
 
+  const username= slug.replace("@,","");
+
   if (typeof slug !== "string") throw new Error("no slug");
-  ssg.profile.getUserByUsername.prefetch({ username: slug });
+  await ssg.profile.getUserByUsername.prefetch({ username });
   return {
     props: {
       trpcState: ssg.dehydrate(),
+      username,
     },
   };
+};
+
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
 };
 
 export default ProfilePage;
