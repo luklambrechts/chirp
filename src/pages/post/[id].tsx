@@ -1,21 +1,75 @@
-import { type NextPage } from "next";
+import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
+import { api } from "~/utils/api";
+import Image from "next/image";
 
-const SinglePostPage: NextPage = () => {
+const ProfileFeed = (props: { userId: string}) => {
+  const { data, isLoading } = api.posts.getPostsByUserId.useQuery({
+    userId: props.userId,
+  });
+  if (isLoading) return <LoadingPage />;
+  if (!data || data.length === 0) return <div>User has not posted</div>;
+
+  return <div className="flex flex-col">
+    { data.map((fullPost) => (<PostView {...fullPost} key={fullPost.post.id} />))}
+  </div>
+}
+
+const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
+  const { data } = api.profile.getUserByUsername.useQuery({
+    username,
+  });
+
+  if (!data) return <div>404</div>;
+
+  console.log(username);
 
   return (
     <>
       <Head>
-        <title>Post</title>
+        <title>{username}</title>
       </Head>
-
-      <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x md:max-w-2xl">
-          Post View
+      <PageLayout>
+        <div className="relative h-36 bg-slate-600">
+          <Image
+            src={data.profileImageUrl}
+            alt={`${data.username ?? ""}'s profile pic`}
+            width={128}
+            height={128}
+            className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-2 border-black bg-black"
+          />
         </div>
-      </main>
+        <div className="h-[64px]"></div>
+        <div className="p-4 text-2xl">{`@${data.username ?? ""}`}</div>
+        <div className="border-b border-slate-400 w-full"></div>
+        <ProfileFeed userId={data.id}></ProfileFeed>
+      </PageLayout>
     </>
   );
+};
+
+import { PageLayout } from "~/components/layout";
+import { LoadingPage } from "~/components/loading";
+import { PostView } from "~/components/postview";
+import { generateSSGHelper } from "~/server/helpers/ssgHelper";
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const ssg = generateSSGHelper();
+  const id = context.params?.id;
+
+  if (typeof id !== "string") throw new Error("no id");
+  
+  await ssg.posts.getById.prefetch({id})
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      id,
+    },
+  };
+};
+
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
 };
 
 export default SinglePostPage;
