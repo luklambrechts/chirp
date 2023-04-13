@@ -11,7 +11,7 @@ const ProfileFeed = (props: { userId: string}) => {
   if (!data || data.length === 0) return <div>User has not posted</div>;
 
   return <div className="flex flex-col">
-    
+    { data.map(post => (<PostView post={post} />))}
   </div>
 }
 
@@ -53,6 +53,7 @@ import { prisma } from "~/server/db";
 import superjson from "superjson";
 import { PageLayout } from "~/components/layout";
 import { LoadingPage } from "~/components/loading";
+import { PostView } from "~/components/postview";
 
 export const getStaticProps = async (context: { params: { slug: any } }) => {
   const ssg = createServerSideHelpers({
