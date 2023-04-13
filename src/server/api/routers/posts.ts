@@ -11,6 +11,38 @@ import {
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
+import type { Post } from "@prisma/client";
+
+const addUserDataToPost = async (posts: Post[]) => {
+  const users = (
+    await clerkClient.users.getUserList({
+      userId: posts.map((post) => post.authorId),
+      limit: 100,
+    })
+  ).map(filterUserForClient);
+  console.log("=====");
+  console.log(users);
+  console.log("======");
+  return posts.map((post) => {
+    const author = users.find((user) => user.id === post.authorId);
+    if (!author || !author.username) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Author for post not found",
+      });
+    }
+
+    console.log(author.username);
+
+    return {
+      post,
+      author: {
+        ...author,
+        username: author.username,
+      },
+    };})
+};
+
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -30,34 +62,7 @@ export const postsRouter = createTRPCRouter({
       take: 100,
       orderBy: { createdAt: "desc" },
     });
-    const users = (
-      await clerkClient.users.getUserList({
-        userId: posts.map((post) => post.authorId),
-        limit: 100,
-      })
-    ).map(filterUserForClient);
-    console.log("=====");
-    console.log(users);
-    console.log("======");
-    return posts.map((post) => {
-      const author = users.find((user) => user.id === post.authorId);
-      if (!author || !author.username) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Author for post not found",
-        });
-      }
-
-      console.log(author.username);
-
-      return {
-        post,
-        author: {
-          ...author,
-          username: author.username,
-        },
-      };
-    });
+    return addUserDataToPost(posts);
   }),
   getPostsByUserId: publicProcedure
     .input(z.object({ userId: z.string() }))
@@ -68,7 +73,7 @@ export const postsRouter = createTRPCRouter({
         },
         take: 100,
         orderBy: [{ createdAt: "desc" }],
-      })
+      }).then(addUserDataToPost)
     ),
   create: privateProcedure
     .input(
