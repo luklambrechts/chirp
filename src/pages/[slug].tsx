@@ -33,7 +33,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <div className="relative h-36 bg-slate-600">
           <Image
             src={data.profileImageUrl}
-            alt={`${data.username}'s profile pic`}
+            alt={`${data.username ?? ""}'s profile pic`}
             width={128}
             height={128}
             className="absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-2 border-black bg-black"
@@ -56,7 +56,7 @@ import { PageLayout } from "~/components/layout";
 import { LoadingPage } from "~/components/loading";
 import { PostView } from "~/components/postview";
 
-export const getStaticProps = async (context: { params: { slug: any } }) => {
+export const getStaticProps: GetStaticProps = async (context) => {
   const ssg = createServerSideHelpers({
     router: appRouter,
     ctx: { prisma, userId: null },
@@ -65,9 +65,11 @@ export const getStaticProps = async (context: { params: { slug: any } }) => {
 
   const slug = context.params?.slug;
 
-  const username = slug.replace("@,", "");
+  
 
   if (typeof slug !== "string") throw new Error("no slug");
+  const username = slug.replace("@,", "");
+  
   await ssg.profile.getUserByUsername.prefetch({ username });
   return {
     props: {
